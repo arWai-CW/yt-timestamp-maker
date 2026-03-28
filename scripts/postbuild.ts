@@ -1,10 +1,20 @@
-import { readFileSync, writeFileSync, renameSync, existsSync, unlinkSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from "fs";
+import { resolve } from "path";
+
+interface PackageJson {
+  version: string;
+  description: string;
+}
+
+const packageJson: PackageJson = JSON.parse(
+  readFileSync(resolve(process.cwd(), "package.json"), "utf-8")
+);
 
 const header = `// ==UserScript==
-// @name         YouTube 時間軸工具
+// @name         YouTube Timestamp Maker
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
-// @description  支援摺疊註解、分隔線功能、優化彈窗對比度、支援每影片獨立儲存
+// @version      ${packageJson.version}
+// @description  ${packageJson.description}
 // @match        https://www.youtube.com/
 // @match        https://www.youtube.com/watch?v=*
 // @match        https://www.youtube.com/live/*

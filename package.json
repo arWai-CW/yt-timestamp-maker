@@ -1,6 +1,7 @@
 {
   "name": "yt-timestamp-maker",
   "version": "1.0.0",
+  "description": "Create, manage, and export timestamps with notes on YouTube videos",
   "private": true,
   "type": "module",
   "scripts": {

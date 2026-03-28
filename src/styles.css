@@ -1,0 +1,263 @@
+#ts-main-wrapper {
+	position: fixed;
+	top: 150px;
+	right: 20px;
+	z-index: 9999;
+	font-family: Roboto, Arial, sans-serif;
+}
+
+#ts-panel {
+	width: 320px;
+	background: #1e1e1e;
+	color: #efefef;
+	border-radius: 8px;
+	border: 1px solid #444;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+	display: flex;
+	flex-direction: column;
+}
+
+#ts-header {
+	background: #333;
+	padding: 10px;
+	cursor: move;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 8px 8px 0 0;
+	border-bottom: 1px solid #444;
+}
+
+#ts-list {
+	max-height: 450px;
+	overflow-y: auto;
+	margin: 5px 0;
+	overflow-x: hidden;
+}
+
+.ts-item {
+	border-bottom: 1px solid #333;
+	padding: 8px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	transition: background 0.2s;
+	cursor: grab;
+	overflow-x: hidden;
+}
+
+.ts-item:hover {
+	background: #252525;
+}
+
+.ts-item.dragging {
+	opacity: 0.5;
+	background: #3a3a3a;
+}
+
+.ts-item.drag-over {
+	border-top: 2px solid #3ea6ff;
+}
+
+.ts-item-content {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.ts-drag-handle {
+	cursor: grab;
+	color: #666;
+	font-size: 14px;
+	padding: 2px;
+	user-select: none;
+}
+
+.ts-drag-handle:hover {
+	color: #999;
+}
+
+.ts-row-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.ts-row-top {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	overflow-x: hidden;
+}
+
+.ts-time-link {
+	color: #3ea6ff;
+	cursor: pointer;
+	font-family: monospace;
+	font-weight: bold;
+	min-width: 55px;
+	font-size: 13px;
+}
+
+.ts-divider-tag {
+	color: #ffcf5e;
+	font-weight: bold;
+	min-width: 55px;
+	font-size: 12px;
+}
+
+.ts-title-edit {
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: white;
+	border-bottom: 1px solid transparent;
+	font-size: 15px;
+	padding: 2px 0;
+	min-width: 0;
+	overflow-x: hidden;
+	font-weight: 500;
+}
+
+.ts-title-edit:focus {
+	border-bottom: 1px solid #3ea6ff;
+	outline: none;
+}
+
+.ts-comment-area {
+	background: #121212;
+	border: 1px solid #444;
+	color: #bbb;
+	font-size: 12px;
+	padding: 6px;
+	border-radius: 4px;
+	resize: vertical;
+	min-height: 40px;
+	margin-top: 5px;
+	width: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden;
+}
+
+.ts-comment-display {
+	background: #121212;
+	border: 1px solid #333;
+	color: #888888;
+	font-size: 12px;
+	padding: 6px;
+	border-radius: 4px;
+	margin-top: 5px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.ts-action-btns {
+	display: flex;
+	gap: 4px;
+}
+
+.ts-mini-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 2px;
+	opacity: 0.5;
+	font-size: 12px;
+	transition: opacity 0.2s;
+}
+
+.ts-mini-btn:hover {
+	opacity: 1;
+	transform: scale(1.1);
+}
+
+.ts-main-btns {
+	padding: 10px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+	border-top: 1px solid #333;
+}
+
+.ts-btn {
+	background: #3ea6ff;
+	border: none;
+	color: white;
+	padding: 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.ts-btn:hover {
+	opacity: 0.9;
+}
+
+.ts-btn-add {
+	background: #2ba640;
+}
+
+.ts-btn-divider {
+	background: #7d5fff;
+}
+
+.ts-btn-sec {
+	background: #444;
+}
+
+#ts-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.85);
+	z-index: 10001;
+	display: none;
+	justify-content: center;
+	align-items: center;
+}
+
+.ts-modal-box {
+	background: #2c2c2c;
+	padding: 25px;
+	border-radius: 12px;
+	width: 380px;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	border: 1px solid #555;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.ts-modal-box h3 {
+	margin: 0;
+	color: #ffffff;
+	text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+	font-size: 18px;
+	border-bottom: 1px solid #444;
+	padding-bottom: 10px;
+}
+
+.ts-setting-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.ts-setting-row label {
+	font-size: 13px;
+	color: #ccc;
+}
+
+.ts-setting-row input[type="color"] {
+	border: none;
+	width: 40px;
+	height: 25px;
+	cursor: pointer;
+}

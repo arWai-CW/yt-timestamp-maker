@@ -112,6 +112,16 @@ class Store {
 		return this.videoId;
 	}
 
+	updateVideoId(): boolean {
+		const newVideoId = this.getVideoIdFromUrl();
+		if (newVideoId === this.videoId) {
+			return false;
+		}
+		this.videoId = newVideoId;
+		this.load();
+		return true;
+	}
+
 	getVideoTitle(): string {
 		const titleEl = document.querySelector(
 			"h1.ytd-video-primary-info-renderer, h1.ytd-watch-metadata, ytd-video-primary-info-renderer h1, h1 yt-formatted-string"

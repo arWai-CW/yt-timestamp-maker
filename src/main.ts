@@ -431,8 +431,42 @@ function setupEventListeners(
   });
 }
 
+function handleNavigation(): void {
+  if (store.updateVideoId()) {
+    render();
+    updateUIText();
+  }
+}
+
+function watchForVideoPage(): void {
+  const checkVideoPage = (): void => {
+    const hasVideo = document.querySelector("video") !== null;
+    const panel = document.getElementById("ts-panel");
+    if (hasVideo && !panel) {
+      init();
+    } else if (hasVideo && panel) {
+      handleNavigation();
+    }
+  };
+
+  const observer = new MutationObserver(checkVideoPage);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  window.addEventListener("popstate", handleNavigation);
+  const originalPushState = history.pushState;
+  history.pushState = function (...args): void {
+    originalPushState.apply(this, args);
+    handleNavigation();
+  };
+  const originalReplaceState = history.replaceState;
+  history.replaceState = function (...args): void {
+    originalReplaceState.apply(this, args);
+    handleNavigation();
+  };
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", watchForVideoPage);
 } else {
-  init();
+  watchForVideoPage();
 }

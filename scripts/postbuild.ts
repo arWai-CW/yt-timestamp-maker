@@ -5,6 +5,7 @@ const header = `// ==UserScript==
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
 // @description  支援摺疊註解、分隔線功能、優化彈窗對比度、支援每影片獨立儲存
+// @match        https://www.youtube.com/
 // @match        https://www.youtube.com/watch?v=*
 // @match        https://www.youtube.com/live/*
 // @grant        GM_addStyle

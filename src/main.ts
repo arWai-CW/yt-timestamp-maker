@@ -1,3 +1,4 @@
+// Entry point - initializes the timestamp tool on YouTube video pages
 import { store } from "./store";
 import { createHTML, render, updateUIText } from "./render";
 import { t } from "./i18n";
@@ -5,6 +6,7 @@ import "./styles.css";
 
 let wrapper: HTMLElement;
 
+// Initializes the UI panel and registers event listeners
 function init(): void {
   const config = store.getConfig();
 
@@ -35,11 +37,13 @@ function init(): void {
   }
 }
 
+// Sets up all event listeners for the UI (clicks, drags, keyboard shortcuts, etc.)
 function setupEventListeners(
   panel: HTMLElement,
   overlay: HTMLElement,
   listContainer: HTMLElement
 ): void {
+  // --- State variables for settings modal ---
   const config = store.getConfig();
   let tempKey = config.key;
   let tempAlt = config.alt;
@@ -51,6 +55,10 @@ function setupEventListeners(
   let isEditingKeyDivider = false;
   let draggedIdx: number | null = null;
 
+  // ============================================================
+  // SECTION: Timestamp list interactions (click, input, blur)
+  // ============================================================
+  // Click: timestamp link seeks video, comment button toggles textarea, delete button removes entry
   listContainer.addEventListener("click", (e: Event) => {
     const target = e.target as HTMLElement;
     const item = target.closest(".ts-item") as HTMLElement;
@@ -75,6 +83,7 @@ function setupEventListeners(
     }
   });
 
+  // Input: live-update note/comment as user types
   listContainer.addEventListener("input", (e: Event) => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
     const item = target.closest(".ts-item") as HTMLElement;
@@ -93,6 +102,7 @@ function setupEventListeners(
     }
   });
 
+  // Blur: when leaving comment textarea, hide it and save
   listContainer.addEventListener(
     "blur",
     (e: Event) => {
@@ -114,6 +124,9 @@ function setupEventListeners(
     true
   );
 
+  // ============================================================
+  // SECTION: Drag and drop reordering
+  // ============================================================
   listContainer.addEventListener("dragstart", (e: DragEvent) => {
     const target = e.target as HTMLElement;
     if (!target.classList.contains("ts-drag-handle")) return;
@@ -150,6 +163,7 @@ function setupEventListeners(
     }
   });
 
+  // Drop: reorder the list by splicing the moved item to new position
   listContainer.addEventListener("drop", (e: DragEvent) => {
     e.preventDefault();
     const item = (e.target as HTMLElement).closest(".ts-item") as HTMLElement;
@@ -170,6 +184,10 @@ function setupEventListeners(
     );
   });
 
+  // ============================================================
+  // SECTION: Main action buttons
+  // ============================================================
+  // Copy all timestamps to clipboard in configured format
   document.getElementById("ts-copy-btn")?.addEventListener("click", () => {
     const cfg = store.getConfig();
     const logs = store.getLogs();
@@ -190,6 +208,7 @@ function setupEventListeners(
     });
   });
 
+  // Add new timestamp at current video time
   document.getElementById("ts-add")?.addEventListener("click", () => {
     const idx = store.addLog(false);
     render();
@@ -197,6 +216,7 @@ function setupEventListeners(
     if (inputs[idx]) inputs[idx].focus();
   });
 
+  // Add section divider (no timestamp)
   document.getElementById("ts-add-divider")?.addEventListener("click", () => {
     const idx = store.addLog(true);
     render();
@@ -204,10 +224,15 @@ function setupEventListeners(
     if (inputs[idx]) inputs[idx].focus();
   });
 
+  // Close/hide the main panel
   document.getElementById("ts-close-btn")?.addEventListener("click", () => {
     panel.classList.add("hidden");
   });
 
+  // ============================================================
+  // SECTION: Modal management (settings & import)
+  // ============================================================
+  // Open settings modal
   document.getElementById("ts-open-settings")?.addEventListener("click", () => {
     overlay.style.display = "flex";
     document.getElementById("modal-settings")?.classList.remove("hidden");
@@ -215,12 +240,19 @@ function setupEventListeners(
     updateUIText();
   });
 
+  // Open import modal
   document.getElementById("ts-import-btn")?.addEventListener("click", () => {
     overlay.style.display = "flex";
     document.getElementById("modal-import")?.classList.remove("hidden");
     document.getElementById("modal-settings")?.classList.add("hidden");
   });
 
+  // ============================================================
+  // SECTION: Import parsing
+  // ============================================================
+  // Parse imported text - supports:
+  //   - Dividers: "--- Title ---" or "- Title"
+  //   - Timestamps: "01:23 Title (comment)" or "01:23:45 Title"
   document.getElementById("confirm-import")?.addEventListener("click", () => {
     const text = (document.getElementById("ts-import-area") as HTMLTextAreaElement)?.value || "";
     const cfg = store.getConfig();
@@ -236,6 +268,7 @@ function setupEventListeners(
       let time: string | null = null;
       const trimmed = line.trim();
 
+      // Check for divider format: "--- Title ---"
       if (dividerPrefix && dividerSuffix) {
         if (
           (trimmed.indexOf(dividerPrefix) >= 0 &&
@@ -253,17 +286,20 @@ function setupEventListeners(
         }
       }
 
+      // Check for alternate divider format: "- Title" or "= Title"
       if (trimmed && !/^\d{1,2}:\d{2}/.test(trimmed) && /^[-=]/.test(trimmed)) {
         note = trimmed.replace(/[-=]/g, "").trim();
         logs.push({ time: null, note, comment: "", showComment: false });
         return;
       }
 
+      // Parse timestamp format: "01:23 Title (comment)"
       const timeMatch = line.match(/^(\d{1,2}:)?(\d{1,2}:\d{2})/);
       if (timeMatch) {
         time = timeMatch[0];
         const rest = line.replace(timeMatch[0], "").trim();
 
+        // Extract comment if wrapped in prefix/suffix
         if (commentPrefix && commentSuffix && rest.includes(commentPrefix) && rest.includes(commentSuffix)) {
           const cStart = rest.indexOf(commentPrefix);
           const cEnd = rest.lastIndexOf(commentSuffix);
@@ -284,6 +320,10 @@ function setupEventListeners(
     alert(t("importSuccess", cfg.lang).replace("{title}", store.getVideoTitle()));
   });
 
+  // ============================================================
+  // SECTION: Settings - keyboard shortcut capture
+  // ============================================================
+  // Click on shortcut hint to enter capture mode
   document.getElementById("ts-setting-hint")?.addEventListener("click", function () {
     isEditingKey = true;
     this.textContent = t("pressKey", store.getConfig().lang);
@@ -296,6 +336,7 @@ function setupEventListeners(
     (this as HTMLElement).style.borderColor = "#2ba640";
   });
 
+  // Checkbox handlers for Alt/Ctrl modifiers
   document.getElementById("set-alt")?.addEventListener("change", function () {
     tempAlt = (this as HTMLInputElement).checked;
   });
@@ -309,10 +350,14 @@ function setupEventListeners(
     tempCtrlD = (this as HTMLInputElement).checked;
   });
 
+  // ============================================================
+  // SECTION: Global keyboard shortcuts
+  // ============================================================
   window.addEventListener("keydown", (e: KeyboardEvent) => {
     const settingsModal = document.getElementById("modal-settings");
     const isSettingsOpen = settingsModal && !settingsModal.classList.contains("hidden");
 
+    // Capture mode: record pressed key for timestamp shortcut
     if (isEditingKey && isSettingsOpen) {
       if (!["Alt", "Control", "Shift", "Meta"].includes(e.key)) {
         tempKey = e.code;
@@ -327,6 +372,7 @@ function setupEventListeners(
       return;
     }
 
+    // Capture mode: record pressed key for divider shortcut
     if (isEditingKeyDivider && isSettingsOpen) {
       if (!["Alt", "Control", "Shift", "Meta"].includes(e.key)) {
         tempKeyD = e.code;
@@ -341,8 +387,10 @@ function setupEventListeners(
       return;
     }
 
+    // Don't trigger shortcuts when settings modal is open
     if (isSettingsOpen) return;
 
+    // Don't trigger when typing in input/textarea
     if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
       return;
     }
@@ -355,12 +403,14 @@ function setupEventListeners(
     const dividerAlt = store.getConfig().altD !== undefined ? store.getConfig().altD : true;
     const dividerCtrl = store.getConfig().ctrlD || false;
 
+    // Trigger: add timestamp at current video time
     if (e.code === shortcutKey && e.altKey === shortcutAlt && e.ctrlKey === shortcutCtrl) {
       store.addLog(false);
       render();
       e.preventDefault();
     }
 
+    // Trigger: add divider
     if (e.code === dividerKey && e.altKey === dividerAlt && e.ctrlKey === dividerCtrl) {
       store.addLog(true);
       render();
@@ -368,6 +418,9 @@ function setupEventListeners(
     }
   });
 
+  // ============================================================
+  // SECTION: Settings - save & clear
+  // ============================================================
   document.getElementById("save-settings")?.addEventListener("click", () => {
     const dividerBgColor = (document.getElementById("set-divider-bg") as HTMLInputElement)?.value || "7d5fff";
     const newConfig = {
@@ -393,6 +446,7 @@ function setupEventListeners(
     updateUIText();
   });
 
+  // Clear all timestamps for current video
   document.getElementById("ts-clear-btn")?.addEventListener("click", () => {
     const cfg = store.getConfig();
     if (confirm(t("confirmClear", cfg.lang).replace("{title}", store.getVideoTitle()))) {
@@ -401,6 +455,7 @@ function setupEventListeners(
     }
   });
 
+  // Click outside modal to close
   overlay.addEventListener("click", (e: Event) => {
     if (e.target === overlay) {
       document.getElementById("modal-settings")?.classList.add("hidden");
@@ -408,6 +463,9 @@ function setupEventListeners(
     }
   });
 
+  // ============================================================
+  // SECTION: Panel drag (move panel position)
+  // ============================================================
   let isDrag = false;
   let relX = 0;
   let relY = 0;
@@ -431,6 +489,7 @@ function setupEventListeners(
   });
 }
 
+// Called when user navigates to a different video - reloads data for the new video
 function handleNavigation(): void {
   if (store.updateVideoId()) {
     render();
@@ -438,6 +497,7 @@ function handleNavigation(): void {
   }
 }
 
+// Watches for YouTube video page changes and initializes the tool when video is detected
 function watchForVideoPage(): void {
   const checkVideoPage = (): void => {
     const hasVideo = document.querySelector("video") !== null;

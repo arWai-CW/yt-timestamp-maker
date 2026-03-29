@@ -1,7 +1,9 @@
+// UI rendering module - generates HTML for the timestamp panel and modals
 import { t } from "./i18n";
 import { store } from "./store";
 import type { Config, TimestampLog } from "./types";
 
+// Generates the initial HTML structure for the panel, settings modal, and import modal
 export function createHTML(config: Config): string {
     const lang = config.lang || "en";
 
@@ -91,6 +93,7 @@ export function createHTML(config: Config): string {
     `;
 }
 
+// Renders the timestamp list based on current store data
 export function render(): void {
     const config = store.getConfig();
     const logs = store.getLogs();
@@ -146,6 +149,7 @@ export function render(): void {
     store.save();
 }
 
+// Updates all UI text content based on current language setting
 export function updateUIText(): void {
     const config = store.getConfig();
     const lang = config.lang || "en";

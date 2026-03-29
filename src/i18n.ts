@@ -1,3 +1,5 @@
+// Internationalization (i18n) module
+// Supports: zh-TW (Traditional Chinese), en (English)
 import type { I18n, I18nDict } from "./types";
 
 export const i18n: I18n = {

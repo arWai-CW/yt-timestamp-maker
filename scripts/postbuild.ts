@@ -15,6 +15,8 @@ const header = `// ==UserScript==
 // @namespace    http://tampermonkey.net/
 // @version      ${packageJson.version}
 // @description  ${packageJson.description}
+// @license      MIT License
+// @author       arWai-CW
 // @match        https://www.youtube.com/
 // @match        https://www.youtube.com/watch?v=*
 // @match        https://www.youtube.com/live/*
@@ -23,6 +25,8 @@ const header = `// ==UserScript==
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
 // @run-at       document-end
+// @updateURL    https://raw.githubusercontent.com/arWai-CW/yt-timestamp-maker/releases/latest/download/yt-timestamp-maker.user.js
+// @downloadURL  https://raw.githubusercontent.com/arWai-CW/yt-timestamp-maker/releases/latest/download/yt-timestamp-maker.user.js
 // ==/UserScript==
 
 `;

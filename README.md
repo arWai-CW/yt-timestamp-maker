@@ -17,13 +17,16 @@ A userscript that lets you create, manage, and export timestamps with notes dire
 
 ## Installation
 
-### Option 1: Install from Source (Recommended for Development)
-
-1. Install a userscript manager:
-   - [Tampermonkey](https://www.tampermonkey.net/) (Chrome, Edge, Firefox, Opera)
+Install a userscript manager:
    - [Violentmonkey](https://violentmonkey.github.io/) (Chrome, Firefox, Edge)
+   - [Tampermonkey](https://www.tampermonkey.net/) (Chrome, Edge, Firefox, Opera)
 
-2. Install [Bun](https://bun.sh) (or use npm/pnpm):
+### Option 1: Install from Github (Recommended for Users)
+[👉 Click here to install script](https://raw.githubusercontent.com/arWai-CW/yt-timestamp-maker/releases/latest/download/yt-timestamp-maker.user.js)
+
+### Option 2: Install from Source (Recommended for Development)
+
+1. Install [Bun](https://bun.sh) (or use npm/pnpm):
 
 ```bash
 # Clone the repository
@@ -37,9 +40,9 @@ bun install
 bun run build
 ```
 
-3. Open Tampermonkey dashboard → "Create a new script" → paste contents from `_yt-timestamp-maker.user.js`
+2. Open Tampermonkey dashboard → "Create a new script" → paste contents from `dist/yt-timestamp-maker.user.js`
 
-### Option 2: Development Mode
+### Option 3: Development Mode
 
 ```bash
 # Start Vite dev server

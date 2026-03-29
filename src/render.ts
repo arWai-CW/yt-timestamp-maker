@@ -111,7 +111,7 @@ export function render(): void {
             (l: TimestampLog, i: number) => `
             <div class="ts-item" data-idx="${i}" style="${l.time ? "" : "background:" + dividerBg + "; border-left:3px solid " + dividerColor + ";"}">
                 <div class="ts-item-content">
-                    <div class="ts-drag-handle" draggable="true" title="拖動">☰</div>
+                    <div class="ts-drag-handle" draggable="true" data-i18n-title="dragHandle">☰</div>
                     <div class="ts-row-main">
                         <div class="ts-row-top">
                             ${l.time ? `<span class="ts-time-link" data-time="${l.time}">${l.time}</span>` : `<span class="ts-divider-tag" style="color:${dividerColor}"></span>`}
@@ -138,12 +138,14 @@ export function render(): void {
         const commentBtn = el.querySelector(".btn-comment") as HTMLButtonElement;
         const delBtn = el.querySelector(".btn-del") as HTMLButtonElement;
         const commentArea = el.querySelector(".ts-comment-area") as HTMLTextAreaElement;
+        const dragHandle = el.querySelector(".ts-drag-handle") as HTMLElement;
 
         if (dividerTag) dividerTag.textContent = t("sectionTag", lang);
         if (titleInput) titleInput.placeholder = t(isDivider ? "dividerPlaceholder" : "titlePlaceholder", lang);
         if (commentBtn) commentBtn.title = t("commentBtn", lang);
         if (delBtn) delBtn.title = t("deleteBtn", lang);
         if (commentArea) commentArea.placeholder = t("commentPlaceholder", lang);
+        if (dragHandle) dragHandle.title = t("dragHandle", lang);
     });
 
     store.save();
@@ -161,5 +163,9 @@ export function updateUIText(): void {
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
         const key = (el as HTMLElement).getAttribute("data-i18n-placeholder");
         if (key) (el as HTMLInputElement).placeholder = t(key, lang);
+    });
+    document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+        const key = (el as HTMLElement).getAttribute("data-i18n-title");
+        if (key) (el as HTMLElement).title = t(key, lang);
     });
 }

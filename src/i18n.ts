@@ -40,6 +40,7 @@ export const i18n: I18n = {
 		sectionTag: "【區段】",
 		togglePanel: "顯示/隱藏面板",
 		language: "語言",
+		dragHandle: "拖動",
 	},
 	en: {
 		appName: "Timestamp Tool",
@@ -78,6 +79,7 @@ export const i18n: I18n = {
 		sectionTag: "[Section]",
 		togglePanel: "Show/Hide Panel",
 		language: "Language",
+		dragHandle: "Drag",
 	},
 };
 

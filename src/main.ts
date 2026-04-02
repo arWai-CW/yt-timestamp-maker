@@ -499,30 +499,41 @@ function handleNavigation(): void {
 
 // Watches for YouTube video page changes and initializes the tool when video is detected
 function watchForVideoPage(): void {
+  let navDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   const checkVideoPage = (): void => {
-    const hasVideo = document.querySelector("video") !== null;
-    const panel = document.getElementById("ts-panel");
-    if (hasVideo && !panel) {
-      init();
-    } else if (hasVideo && panel) {
-      handleNavigation();
+    try {
+      const video = document.querySelector("video");
+      if (!video) return;
+
+      const panel = document.getElementById("ts-panel");
+      if (!panel) {
+        init();
+      } else {
+        // Debounce navigation handling to avoid excessive triggers during DOM changes
+        if (navDebounceTimer) {
+          clearTimeout(navDebounceTimer);
+        }
+        navDebounceTimer = setTimeout(() => {
+          handleNavigation();
+        }, 100);
+      }
+    } catch {
+      // DOM may be in unstable state during major changes (e.g., chat replay toggle)
+      // Skip this check iteration
     }
   };
 
-  const observer = new MutationObserver(checkVideoPage);
+  const observer = new MutationObserver(() => {
+    try {
+      checkVideoPage();
+    } catch (e) {
+      console.error("MutationObserver error:", e);
+    }
+  });
   observer.observe(document.body, { childList: true, subtree: true });
 
   window.addEventListener("popstate", handleNavigation);
-  const originalPushState = history.pushState;
-  history.pushState = function (...args): void {
-    originalPushState.apply(this, args);
-    handleNavigation();
-  };
-  const originalReplaceState = history.replaceState;
-  history.replaceState = function (...args): void {
-    originalReplaceState.apply(this, args);
-    handleNavigation();
-  };
 }
 
 if (document.readyState === "loading") {

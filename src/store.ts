@@ -19,9 +19,20 @@ const DEFAULT_CONFIG: Config = {
 	lang: "en",
 };
 
+// Message type for background script communication
+type MessageType =
+	| "getLogs"
+	| "setLogs"
+	| "getConfig"
+	| "setConfig"
+	| "getVideoId"
+	| "getCurrentTime"
+	| "setVideoTitle";
+
 /**
  * Data store for timestamp logs and user configuration.
- * Persists data to localStorage, keyed by YouTube video ID.
+ * Communicates with background script via chrome.runtime.sendMessage.
+ * Falls back to localStorage if chrome API is not available.
  * Each video gets its own isolated storage namespace.
  */
 class Store {
@@ -29,10 +40,36 @@ class Store {
 	private config: Config = { ...DEFAULT_CONFIG };
 	private videoId: string = "default";
 	private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+	private useChromeStorage: boolean = true;
+	private initPromise: Promise<void>;
+	private resolveInit!: () => void;
 
 	constructor() {
 		this.videoId = this.getVideoIdFromUrl();
+		this.checkChromeAPI();
+		this.initPromise = new Promise((resolve) => {
+			this.resolveInit = resolve;
+		});
 		this.load();
+	}
+
+	// Check if chrome API is available
+	private checkChromeAPI(): void {
+		this.useChromeStorage = typeof chrome !== "undefined" && !!chrome.runtime?.sendMessage;
+	}
+
+	// Send message to background script with fallback
+	private async sendMessage<T>(type: MessageType, data?: unknown): Promise<T | null> {
+		if (!this.useChromeStorage || !chrome.runtime) {
+			return null;
+		}
+
+		try {
+			const response = await chrome.runtime.sendMessage({ type, videoId: this.videoId, data });
+			return response as T | null;
+		} catch {
+			return null;
+		}
 	}
 
 	// Extract video ID from current YouTube URL
@@ -41,13 +78,44 @@ class Store {
 		return match?.[1] ?? "default";
 	}
 
-	// Generate storage key with video-specific namespace
+	// Generate storage key with video-specific namespace (for localStorage fallback)
 	private getStorageKey(prefix: string): string {
 		return `${prefix}_${this.videoId}`;
 	}
 
-	// Load persisted data from localStorage
-	private load(): void {
+	// Load persisted data from chrome.storage or localStorage fallback
+	private async load(): Promise<void> {
+		try {
+			if (this.useChromeStorage) {
+				// Try chrome.storage.local first
+				const logsResponse = await this.sendMessage<{ success: boolean; data?: TimestampLog[] }>("getLogs");
+				if (logsResponse?.success && logsResponse.data) {
+					this.logs = logsResponse.data;
+				}
+
+				const configResponse = await this.sendMessage<{ success: boolean; data?: Config }>("getConfig");
+				if (configResponse?.success && configResponse.data) {
+					this.config = { ...DEFAULT_CONFIG, ...configResponse.data };
+				}
+			} else {
+				// Fallback to localStorage
+				this.loadFromLocalStorage();
+			}
+		} catch {
+			// Fallback to localStorage on any error
+			this.loadFromLocalStorage();
+		}
+
+		// Detect system language on first load
+		if (!this.config.lang) {
+			this.config.lang = detectSystemLang() as "zh-TW" | "en";
+		}
+
+		this.resolveInit();
+	}
+
+	// Fallback: load from localStorage
+	private loadFromLocalStorage(): void {
 		try {
 			const storedLogs = localStorage.getItem(this.getStorageKey("yt_ts_logs"));
 			this.logs = storedLogs ? JSON.parse(storedLogs) : [];
@@ -55,11 +123,6 @@ class Store {
 			const storedConfig = localStorage.getItem(this.getStorageKey("yt_ts_config"));
 			if (storedConfig) {
 				this.config = { ...DEFAULT_CONFIG, ...JSON.parse(storedConfig) };
-			}
-
-			// Detect system language on first load
-			if (!this.config.lang) {
-				this.config.lang = detectSystemLang() as "zh-TW" | "en";
 			}
 		} catch {
 			this.logs = [];
@@ -96,6 +159,9 @@ class Store {
 			comment: "",
 			showComment: false,
 		});
+		if (!this.hasVideoTitle()) {
+			this.saveVideoTitle();
+		}
 		this.save();
 		return this.logs.length - 1;
 	}
@@ -105,8 +171,20 @@ class Store {
 		this.save();
 	}
 
-	// Persist current state to localStorage
+	// Persist current state to chrome.storage or localStorage fallback
 	save(): void {
+		if (this.useChromeStorage) {
+			// Save to chrome.storage.local via background script
+			this.sendMessage("setLogs", this.logs);
+			this.sendMessage("setConfig", this.config);
+		} else {
+			// Fallback to localStorage
+			this.saveToLocalStorage();
+		}
+	}
+
+	// Fallback: save to localStorage
+	private saveToLocalStorage(): void {
 		try {
 			localStorage.setItem(this.getStorageKey("yt_ts_logs"), JSON.stringify(this.logs));
 			localStorage.setItem(this.getStorageKey("yt_ts_config"), JSON.stringify(this.config));
@@ -115,7 +193,7 @@ class Store {
 		}
 	}
 
-	// Debounced save to reduce localStorage writes during rapid changes
+	// Debounced save to reduce writes during rapid changes
 	private scheduleSave(): void {
 		if (this.saveTimeout) {
 			clearTimeout(this.saveTimeout);
@@ -134,7 +212,16 @@ class Store {
 			return false;
 		}
 		this.videoId = newVideoId;
-		this.load();
+		
+		// Create new init promise for new video
+		this.initPromise = new Promise((resolve) => {
+			this.resolveInit = resolve;
+		});
+		
+		this.load().catch(() => {
+			// Fallback to localStorage on error
+			this.loadFromLocalStorage();
+		});
 		return true;
 	}
 
@@ -169,6 +256,32 @@ class Store {
 		if (parts[1]) seconds += parseInt(parts[1], 10) * 60;
 		if (parts[2]) seconds += parseInt(parts[2], 10) * 3600;
 		return seconds;
+	}
+
+	saveVideoTitle(): void {
+		if (!this.useChromeStorage) {
+			localStorage.setItem(`yt_ts_title_${this.videoId}`, this.getVideoTitle());
+			return;
+		}
+		this.sendMessage("setVideoTitle", this.getVideoTitle());
+	}
+
+	hasVideoTitle(): boolean {
+		if (!this.useChromeStorage) {
+			return localStorage.getItem(`yt_ts_title_${this.videoId}`) !== null;
+		}
+		return this.logs.length > 0;
+	}
+
+	updateVideoTitle(): void {
+		const currentTitle = this.getVideoTitle();
+		if (currentTitle && currentTitle !== "Unknown Video") {
+			this.saveVideoTitle();
+		}
+	}
+
+	waitForInit(): Promise<void> {
+		return this.initPromise;
 	}
 }
 

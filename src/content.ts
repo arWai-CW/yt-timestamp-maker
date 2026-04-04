@@ -1,4 +1,4 @@
-// Entry point - initializes the timestamp tool on YouTube video pages
+// Content script entry point - injected into YouTube pages
 import { store } from "./store";
 import { createHTML, render, updateUIText } from "./render";
 import { t } from "./i18n";
@@ -7,7 +7,8 @@ import "./styles.css";
 let wrapper: HTMLElement;
 
 // Initializes the UI panel and registers event listeners
-function init(): void {
+async function init(): Promise<void> {
+  await store.waitForInit();
   const config = store.getConfig();
 
   wrapper = document.createElement("div");
@@ -490,8 +491,9 @@ function setupEventListeners(
 }
 
 // Called when user navigates to a different video - reloads data for the new video
-function handleNavigation(): void {
+async function handleNavigation(): Promise<void> {
   if (store.updateVideoId()) {
+    await store.waitForInit();
     render();
     updateUIText();
   }
@@ -536,12 +538,7 @@ function watchForVideoPage(): void {
   window.addEventListener("popstate", handleNavigation);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", watchForVideoPage);
-} else {
-  watchForVideoPage();
-}
-
+// MV3 message listener for communication with background script
 if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const msg = message as { type: string; videoId?: string };
@@ -553,6 +550,15 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
         } else {
           panel.classList.add("hidden");
         }
+      }
+      sendResponse({ success: true });
+      return true;
+    }
+
+    if (msg.type === "showPanel") {
+      const panel = document.getElementById("ts-panel");
+      if (panel) {
+        panel.classList.remove("hidden");
       }
       sendResponse({ success: true });
       return true;
@@ -572,4 +578,11 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
 
     return false;
   });
+}
+
+// Auto-initialize
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", watchForVideoPage);
+} else {
+  watchForVideoPage();
 }

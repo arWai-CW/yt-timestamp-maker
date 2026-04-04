@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Timestamp Maker",
+  "version": "1.0.0",
+  "description": "Create, manage, and export timestamps with notes for YouTube videos",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/watch*",
+        "*://www.youtube.com/watch*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "yt-timestamp-maker@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>YouTube Timestamp Maker</title>
+	<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+	<div id="app">
+		<div class="header">
+			<h1 id="title">Timestamp Tool</h1>
+		</div>
+
+		<div class="header-row">
+			<span id="video-id" class="video-id"></span>
+		</div>
+
+		<div id="video-info" class="video-info hidden">
+			<p id="video-title" class="video-title"></p>
+		</div>
+
+		<div id="saved-videos" class="saved-videos">
+			<h3 class="saved-videos-title">Saved Videos</h3>
+			<div id="saved-videos-list" class="saved-videos-list"></div>
+		</div>
+
+		<div id="not-video" class="not-video hidden">
+			<p>Open a YouTube video page to use this extension.</p>
+			<a href="https://www.youtube.com" target="_blank" class="youtube-link">Go to YouTube</a>
+		</div>
+
+		<button id="show-panel" class="btn btn-full">Show Panel</button>
+
+		<div class="toast" id="toast"></div>
+	</div>
+
+	<script src="popup.js"></script>
+</body>
+</html>

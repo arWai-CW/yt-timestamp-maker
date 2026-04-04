@@ -1,46 +1,78 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { cpSync, existsSync, mkdirSync } from "fs";
+import { cpSync, existsSync, mkdirSync, readdirSync } from "fs";
 
-const isExtension = process.env.BUILD === "extension";
+function copyStaticAssets() {
+	const srcDir = resolve(__dirname, "extension");
+	const distDir = resolve(__dirname, "dist", "extension");
 
-function copyExtensionAssets() {
-	const extDir = resolve(__dirname, "extension");
-	const distDir = resolve(__dirname, "dist");
-
-	if (!existsSync(extDir)) {
-		mkdirSync(extDir, { recursive: true });
+	if (!existsSync(distDir)) {
+		mkdirSync(distDir, { recursive: true });
 	}
 
-	const contentJs = resolve(distDir, "content.js");
-	if (existsSync(contentJs)) {
-		cpSync(contentJs, resolve(extDir, "content.js"));
-	}
+	const staticFiles = ["manifest.json", "popup.html", "popup.css", "icons"];
 
-	const contentCss = resolve(distDir, "style.css");
-	if (existsSync(contentCss)) {
-		cpSync(contentCss, resolve(extDir, "content.css"));
+	for (const file of staticFiles) {
+		const srcPath = resolve(srcDir, file);
+		const destPath = resolve(distDir, file);
+
+		if (existsSync(srcPath)) {
+			if (file === "icons") {
+				mkdirSync(destPath, { recursive: true });
+				const iconFiles = readdirSync(srcPath);
+				for (const iconFile of iconFiles) {
+					cpSync(resolve(srcPath, iconFile), resolve(destPath, iconFile));
+				}
+			} else {
+				cpSync(srcPath, destPath);
+			}
+		}
 	}
 }
 
+function isLastEntry(): boolean {
+	const entry = process.env.INPUT;
+	return entry === "popup";
+}
+
 export default defineConfig({
-	plugins: isExtension
-		? [
-			{
-				name: "copy-extension-assets",
-				closeBundle() {
-					copyExtensionAssets();
-				},
+	plugins: [
+		{
+			name: "extension-build",
+			closeBundle() {
+				if (isLastEntry()) {
+					copyStaticAssets();
+				}
 			},
-		]
-		: [],
+		},
+	],
 	build: {
 		outDir: "dist",
+		emptyOutDir: false,
 		lib: {
-			entry: resolve(__dirname, isExtension ? "src/content.ts" : "src/main.ts"),
-			name: isExtension ? "ContentScript" : "YouTubeTimestampMaker",
+			entry: resolve(__dirname, `src/${process.env.INPUT || "content"}.ts`),
+			name: "YouTubeTimestampMaker",
 			formats: ["iife"],
-			fileName: () => (isExtension ? "content.js" : "yt-timestamp-maker.user.iife.js"),
+			fileName: (format, name) => {
+				const inputName = process.env.INPUT || "content";
+				if (inputName === "popup") return "extension/popup.js";
+				if (inputName === "background") return "extension/background.js";
+				return "extension/content.js";
+			},
+		},
+		rollupOptions: {
+			output: {
+				assetFileNames: (assetInfo) => {
+					const inputName = process.env.INPUT || "content";
+					if (inputName === "popup" && assetInfo.name === "popup.css") {
+						return "extension/popup.css";
+					}
+					if (inputName === "content" && assetInfo.name === "style.css") {
+						return "extension/content.css";
+					}
+					return assetInfo.name ?? "assets/[name]-[hash]";
+				},
+			},
 		},
 	},
 });

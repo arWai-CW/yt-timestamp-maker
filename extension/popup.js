@@ -51,7 +51,7 @@ async function renderSavedVideos() {
 		.map(
 			(v) =>
 				`<a href="${v.url}" target="_blank" class="saved-video-item" data-video-id="${v.videoId}">
-					<span class="video-id-text">${v.videoId}</span>
+					<span class="video-title-text">${v.title || v.videoId}</span>
 					<span class="video-count">${v.count}</span>
 				</a>`
 		)

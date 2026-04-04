@@ -24,43 +24,43 @@ export function createHTML(config: Config): string {
             <div class="ts-main-btns">
                 <button class="ts-btn ts-btn-sec" id="ts-import-btn" data-i18n="import"></button>
                 <button class="ts-btn ts-btn-copy" id="ts-copy-btn" data-i18n="copyAll"></button>
-                <button class="ts-btn ts-btn-clear" id="ts-clear-btn" data-i18n="clearAll" style="background:#b33939; grid-column: span 2;"></button>
+                <button class="ts-btn ts-btn-sec" id="ts-clear-btn" data-i18n="clearAll" style="grid-column: span 2;"></button>
             </div>
         </div>
         <div id="ts-modal-overlay">
             <div id="modal-import" class="ts-modal-box hidden">
                 <h3 data-i18n="importTitle"></h3>
                 <textarea id="ts-import-area" style="height:180px; background:var(--bg-black); color:var(--text-primary); border:1px solid var(--border-dark); padding:10px; border-radius:4px; font-family:monospace;" data-i18n-placeholder="importPlaceholder"></textarea>
-                <button class="ts-btn" id="confirm-import" data-i18n="confirmImport"></button>
+                <button class="ts-btn ts-btn-add" id="confirm-import" data-i18n="confirmImport"></button>
             </div>
             <div id="modal-settings" class="ts-modal-box hidden">
                 <h3 data-i18n="settingsTitle"></h3>
                 <div style="font-size:13px; color:var(--text-secondary); margin-bottom:5px;" data-i18n="recordTime"></div>
-                <div id="ts-setting-hint" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--btn-blue); font-weight:bold; font-size:18px; border: 1px dashed var(--btn-blue); cursor:pointer;" title="">${(config.ctrl ? "Ctrl+" : "") + (config.alt ? "Alt+" : "") + (config.key || "KeyZ").replace("Key", "")}</div>
+                <div id="ts-setting-hint" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--text-primary); font-weight:bold; font-size:18px; border: 1px dashed var(--border-dark); cursor:pointer;" title="">${(config.ctrl ? "Ctrl+" : "") + (config.alt ? "Alt+" : "") + (config.key || "KeyZ").replace("Key", "")}</div>
                 <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-bottom:10px;" data-i18n="clickToSet"></div>
                 <div style="display:flex; justify-content:center; gap:20px; font-size:14px">
                     <label style="cursor:pointer"><input type="checkbox" id="set-alt" ${config.alt ? "checked" : ""}> Alt</label>
                     <label style="cursor:pointer"><input type="checkbox" id="set-ctrl" ${config.ctrl ? "checked" : ""}> Ctrl</label>
                 </div>
                 <div style="font-size:13px; color:var(--text-secondary); margin:15px 0 5px 0;" data-i18n="divider"></div>
-                <div id="ts-setting-hint-divider" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--btn-yellow); font-weight:bold; font-size:18px; border: 1px dashed var(--btn-yellow); cursor:pointer;" title="">${(config.ctrlD ? "Ctrl+" : "") + (config.altD ? "Alt+" : "") + (config.keyD || "KeyX").replace("Key", "")}</div>
+                <div id="ts-setting-hint-divider" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--text-primary); font-weight:bold; font-size:18px; border: 1px dashed var(--border-dark); cursor:pointer;" title="">${(config.ctrlD ? "Ctrl+" : "") + (config.altD ? "Alt+" : "") + (config.keyD || "KeyX").replace("Key", "")}</div>
                 <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-bottom:10px;" data-i18n="clickToSet"></div>
                 <div style="display:flex; justify-content:center; gap:20px; font-size:14px">
                     <label style="cursor:pointer"><input type="checkbox" id="set-alt-divider" ${config.altD ? "checked" : ""}> Alt</label>
                     <label style="cursor:pointer"><input type="checkbox" id="set-ctrl-divider" ${config.ctrlD ? "checked" : ""}> Ctrl</label>
                 </div>
                 <h3 data-i18n="styleSettings"></h3>
-                <div class="ts-setting-row">
+                <div class="ts-setting-row" style="display:none">
                     <label data-i18n="commentColor"></label>
-                    <input type="color" id="set-comment-color" value="${config.commentColor || "#a7a7a7"}">
+                    <input type="color" id="set-comment-color" value="${config.commentColor || "a7a7a7"}">
                 </div>
-                <div class="ts-setting-row">
+                <div class="ts-setting-row" style="display:none">
                     <label data-i18n="dividerBg"></label>
-                    <input type="color" id="set-divider-bg" value="${config.dividerBg ? config.dividerBg.replace("#", "").slice(0, 6) : "7d5fff"}">
+                    <input type="color" id="set-divider-bg" value="${config.dividerBg ? config.dividerBg.replace("#", "").slice(0, 6) : "1a1a1a"}">
                 </div>
-                <div class="ts-setting-row">
+                <div class="ts-setting-row" style="display:none">
                     <label data-i18n="dividerText"></label>
-                    <input type="color" id="set-divider-color" value="${config.dividerColor || "#ffcf5e"}">
+                    <input type="color" id="set-divider-color" value="${config.dividerColor || "a7a7a7"}">
                 </div>
                 <h3 data-i18n="copyFormat"></h3>
                 <div class="ts-setting-row">
@@ -87,7 +87,7 @@ export function createHTML(config: Config): string {
                         <option value="en" ${config.lang === "en" ? "selected" : ""}>English</option>
                     </select>
                 </div>
-                <button class="ts-btn" id="save-settings" data-i18n="saveSettings"></button>
+                <button class="ts-btn ts-btn-add" id="save-settings" data-i18n="saveSettings"></button>
             </div>
         </div>
     `;
@@ -102,26 +102,22 @@ export function render(): void {
 
     if (!listContainer) return;
 
-    const dividerBg = config.dividerBg || "#7d5fff20";
-    const dividerColor = config.dividerColor || "#ffcf5e";
-    const commentColor = config.commentColor || "#a7a7a7";
-
     listContainer.innerHTML = logs
         .map(
             (l: TimestampLog, i: number) => `
-            <div class="ts-item" data-idx="${i}" style="${l.time ? "" : "background:" + dividerBg + "; border-left:3px solid " + dividerColor + ";"}">
+            <div class="ts-item" data-idx="${i}" style="${l.time ? "" : "background:var(--bg-surface); border-left:3px solid var(--text-muted);"}">
                 <div class="ts-item-content">
                     <div class="ts-drag-handle" draggable="true" data-i18n-title="dragHandle">☰</div>
                     <div class="ts-row-main">
                         <div class="ts-row-top">
-                            ${l.time ? `<span class="ts-time-link" data-time="${l.time}">${l.time}</span>` : `<span class="ts-divider-tag" style="color:${dividerColor}"></span>`}
+                            ${l.time ? `<span class="ts-time-link" data-time="${l.time}">${l.time}</span>` : `<span class="ts-divider-tag" style="color:var(--text-muted)"></span>`}
                             <input type="text" class="ts-title-edit" placeholder="" value="${l.note || ""}">
                             <div class="ts-action-btns">
                                 <button class="ts-mini-btn btn-comment" title="">💬</button>
-                                <button class="ts-mini-btn btn-del" title="" style="color:#ff6b6b;">✕</button>
+                                <button class="ts-mini-btn btn-del" title="">✕</button>
                             </div>
                         </div>
-                        ${l.comment && !l.showComment ? '<div class="ts-comment-display" style="color:' + commentColor + '">' + l.comment + "</div>" : ""}
+                        ${l.comment && !l.showComment ? '<div class="ts-comment-display">' + l.comment + "</div>" : ""}
                         <textarea class="ts-comment-area ${l.showComment ? "" : "hidden"}" placeholder="">${l.comment || ""}</textarea>
                     </div>
                 </div>

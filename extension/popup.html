@@ -7,33 +7,34 @@
 	<link rel="stylesheet" href="popup.css">
 </head>
 <body>
-	<div id="app">
-		<div class="header">
-			<h1 id="title">Timestamp Tool</h1>
+		<div id="app">
+			<header class="header">
+				<h1 id="title">Timestamp Tool</h1>
+				<span id="video-id" class="video-id"></span>
+			</header>
+
+			<main class="main-content">
+				<div id="video-info" class="video-info hidden">
+					<p id="video-title" class="video-title"></p>
+				</div>
+
+				<div id="saved-videos" class="saved-videos">
+					<h3 class="saved-videos-title">Saved Videos</h3>
+					<div id="saved-videos-list" class="saved-videos-list"></div>
+				</div>
+
+				<div id="not-video" class="not-video hidden">
+					<p>Open a YouTube video page to use this extension.</p>
+					<a href="https://www.youtube.com" target="_blank" class="youtube-link">Go to YouTube</a>
+				</div>
+			</main>
+
+			<footer class="footer">
+				<button id="show-panel" class="btn btn-full">Show Panel</button>
+			</footer>
+
+			<div class="toast" id="toast"></div>
 		</div>
-
-		<div class="header-row">
-			<span id="video-id" class="video-id"></span>
-		</div>
-
-		<div id="video-info" class="video-info hidden">
-			<p id="video-title" class="video-title"></p>
-		</div>
-
-		<div id="saved-videos" class="saved-videos">
-			<h3 class="saved-videos-title">Saved Videos</h3>
-			<div id="saved-videos-list" class="saved-videos-list"></div>
-		</div>
-
-		<div id="not-video" class="not-video hidden">
-			<p>Open a YouTube video page to use this extension.</p>
-			<a href="https://www.youtube.com" target="_blank" class="youtube-link">Go to YouTube</a>
-		</div>
-
-		<button id="show-panel" class="btn btn-full">Show Panel</button>
-
-		<div class="toast" id="toast"></div>
-	</div>
 
 	<script src="popup.js"></script>
 </body>

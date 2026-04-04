@@ -8,11 +8,6 @@
   --text-primary: #ffffff;
   --text-secondary: #767d88;
   --text-muted: #a7a7a7;
-  
-  --btn-green: #2ba640;
-  --btn-purple: #7d5fff;
-  --btn-yellow: #ffcf5e;
-  --btn-blue: #3ea6ff;
 
   --font-main: 'Inter', system-ui, sans-serif;
   --lh-tight: 1.1;
@@ -80,7 +75,7 @@
 }
 
 .ts-item.drag-over {
-  border-top: 2px solid var(--btn-blue);
+  border-top: 2px solid var(--text-primary);
 }
 
 .ts-item-content {
@@ -114,7 +109,7 @@
 }
 
 .ts-time-link {
-  color: var(--btn-blue);
+  color: var(--text-primary);
   cursor: pointer;
   font-family: var(--font-main);
   font-weight: 600;
@@ -124,7 +119,7 @@
 }
 
 .ts-divider-tag {
-  color: var(--btn-yellow);
+  color: var(--text-muted);
   font-weight: 600;
   min-width: 55px;
   font-size: 12px;
@@ -147,7 +142,7 @@
 }
 
 .ts-title-edit:focus {
-  border-bottom: 1px solid var(--btn-blue);
+  border-bottom: 1px solid var(--text-secondary);
   outline: none;
 }
 
@@ -216,37 +211,42 @@
 }
 
 .ts-btn {
-  background: var(--btn-blue);
-  border: none;
-  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dark);
+  color: var(--text-secondary);
   padding: 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   font-family: var(--font-main);
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .ts-btn:hover {
-  opacity: 0.9;
+  background: #252525;
+  color: var(--text-primary);
 }
 
 .ts-btn-add {
-  background: var(--btn-green);
+  background: #1a1a1a;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .ts-btn-divider {
-  background: var(--btn-purple);
+  background: #1a1a1a;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .ts-btn-sec {
-  background: #333;
+  background: var(--bg-black);
   color: var(--text-secondary);
 }
 
 .ts-btn-sec:hover {
-  background: #444;
+  background: var(--bg-surface);
   color: var(--text-primary);
 }
 

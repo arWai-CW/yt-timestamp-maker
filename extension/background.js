@@ -1,5 +1,6 @@
 const STORAGE_KEY_LOGS = "yt_ts_logs";
 const STORAGE_KEY_CONFIG = "yt_ts_config";
+const STORAGE_KEY_TITLE = "yt_ts_title";
 
 const DEFAULT_CONFIG = {
 	key: "KeyZ",
@@ -8,9 +9,9 @@ const DEFAULT_CONFIG = {
 	keyD: "KeyX",
 	altD: true,
 	ctrlD: false,
-	commentColor: "#888888",
-	dividerBg: "#7d5fff20",
-	dividerColor: "#ffcf5e",
+	commentColor: "#a7a7a7",
+	dividerBg: "#1a1a1a",
+	dividerColor: "#767d88",
 	dividerPrefix: "---",
 	dividerSuffix: "---",
 	commentPrefix: "(",
@@ -27,6 +28,7 @@ function getStorageKeys(videoId) {
 	return {
 		logs: `${STORAGE_KEY_LOGS}_${videoId}`,
 		config: `${STORAGE_KEY_CONFIG}_${videoId}`,
+		title: `${STORAGE_KEY_TITLE}_${videoId}`,
 	};
 }
 
@@ -52,6 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 				const videos = Array.from(videoIds).map((vid) => ({
 					videoId: vid,
+					title: allResults[`${STORAGE_KEY_TITLE}_${vid}`] || null,
 					url: `https://www.youtube.com/watch?v=${vid}`,
 					count: (allResults[`${STORAGE_KEY_LOGS}_${vid}`]?.length) || 0,
 				}));
@@ -107,6 +110,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					return;
 				}
 				await chrome.storage.local.set({ [keys.config]: data });
+				sendResponse({ success: true });
+				break;
+			}
+			case "setVideoTitle": {
+				if (!keys) {
+					sendResponse({ success: false, error: "No video ID" });
+					return;
+				}
+				await chrome.storage.local.set({ [keys.title]: data });
 				sendResponse({ success: true });
 				break;
 			}

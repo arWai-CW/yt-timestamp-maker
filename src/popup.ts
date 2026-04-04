@@ -29,6 +29,8 @@ async function init(): Promise<void> {
 	if (!videoIdResponse?.success || !videoIdResponse.data) {
 		document.getElementById("video-info")?.classList.add("hidden");
 		document.getElementById("not-video")?.classList.remove("hidden");
+		document.getElementById("not-video-msg")!.textContent = t("notVideoMessage", lang);
+		document.getElementById("youtube-link")!.textContent = t("goToYoutube", lang);
 	} else {
 		const videoId = videoIdResponse.data as string;
 		const titleEl = document.getElementById("title");
@@ -40,6 +42,9 @@ async function init(): Promise<void> {
 			videoIdEl.textContent = videoId;
 		}
 	}
+
+	document.getElementById("show-panel")!.textContent = t("showPanel", lang);
+	document.getElementById("saved-videos-title")!.textContent = t("savedVideos", lang);
 
 	await renderSavedVideos(lang);
 }

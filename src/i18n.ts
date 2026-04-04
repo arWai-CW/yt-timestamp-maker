@@ -37,6 +37,11 @@ export const i18n: I18n = {
 		togglePanel: "顯示/隱藏面板",
 		language: "語言",
 		dragHandle: "拖動",
+		noSavedVideos: "尚無已保存的影片",
+		showPanel: "顯示面板",
+		savedVideos: "已保存的影片",
+		notVideoMessage: "打開 YouTube 影片頁面來使用此擴充功能",
+		goToYoutube: "前往 YouTube",
 	},
 	en: {
 		appName: "Timestamp Tool",
@@ -72,6 +77,11 @@ export const i18n: I18n = {
 		togglePanel: "Show/Hide Panel",
 		language: "Language",
 		dragHandle: "Drag",
+		noSavedVideos: "No saved videos yet",
+		showPanel: "Show Panel",
+		savedVideos: "Saved Videos",
+		notVideoMessage: "Open a YouTube video page to use this extension.",
+		goToYoutube: "Go to YouTube",
 	},
 };
 

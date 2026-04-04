@@ -35,4 +35,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 .sisyphus/*
 AGENTS.md
+DESIGN.md
 _*.js

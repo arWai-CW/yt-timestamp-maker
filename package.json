@@ -1,18 +1,18 @@
 {
 	"name": "yt-timestamp-maker",
 	"version": "1.0.0",
-	"description": "Create, manage, and export timestamps with notes on YouTube videos",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build && bun scripts/postbuild.ts",
-		"build:ext": "BUILD=extension vite build && cp dist/content.js extension/ && cp dist/style.css extension/content.css",
-		"preview": "vite preview"
-	},
 	"devDependencies": {
 		"@types/bun": "latest",
+		"@types/node": "^25.5.2",
 		"typescript": "^5.0.0",
 		"vite": "^5.0.0"
-	}
+	},
+	"description": "Create, manage, and export timestamps with notes on YouTube videos",
+	"private": true,
+	"scripts": {
+		"dev": "vite",
+		"build": "BUILD=extension vite build && cp dist/content.js extension/ && cp dist/style.css extension/content.css",
+		"preview": "vite preview"
+	},
+	"type": "module"
 }

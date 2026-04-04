@@ -327,13 +327,13 @@ function setupEventListeners(
   document.getElementById("ts-setting-hint")?.addEventListener("click", function () {
     isEditingKey = true;
     this.textContent = t("pressKey", store.getConfig().lang);
-    (this as HTMLElement).style.borderColor = "#2ba640";
+    (this as HTMLElement).style.borderColor = "var(--accent)";
   });
 
   document.getElementById("ts-setting-hint-divider")?.addEventListener("click", function () {
     isEditingKeyDivider = true;
     this.textContent = t("pressKey", store.getConfig().lang);
-    (this as HTMLElement).style.borderColor = "#2ba640";
+    (this as HTMLElement).style.borderColor = "var(--accent)";
   });
 
   // Checkbox handlers for Alt/Ctrl modifiers
@@ -364,7 +364,7 @@ function setupEventListeners(
         const hintEl = document.getElementById("ts-setting-hint");
         if (hintEl) {
           hintEl.textContent = (tempCtrl ? "Ctrl+" : "") + (tempAlt ? "Alt+" : "") + tempKey.replace("Key", "");
-          hintEl.style.borderColor = "#3ea6ff";
+          hintEl.style.borderColor = "var(--accent)";
         }
         isEditingKey = false;
         e.preventDefault();
@@ -379,7 +379,7 @@ function setupEventListeners(
         const hintEl = document.getElementById("ts-setting-hint-divider");
         if (hintEl) {
           hintEl.textContent = (tempCtrlD ? "Ctrl+" : "") + (tempAltD ? "Alt+" : "") + tempKeyD.replace("Key", "");
-          hintEl.style.borderColor = "#ffcf5e";
+          hintEl.style.borderColor = "var(--accent)";
         }
         isEditingKeyDivider = false;
         e.preventDefault();
@@ -422,7 +422,6 @@ function setupEventListeners(
   // SECTION: Settings - save & clear
   // ============================================================
   document.getElementById("save-settings")?.addEventListener("click", () => {
-    const dividerBgColor = (document.getElementById("set-divider-bg") as HTMLInputElement)?.value || "7d5fff";
     const newConfig = {
       key: tempKey,
       alt: tempAlt,
@@ -430,9 +429,6 @@ function setupEventListeners(
       keyD: tempKeyD,
       altD: tempAltD,
       ctrlD: tempCtrlD,
-      commentColor: (document.getElementById("set-comment-color") as HTMLInputElement)?.value || "#888888",
-      dividerBg: "#" + dividerBgColor + "20",
-      dividerColor: (document.getElementById("set-divider-color") as HTMLInputElement)?.value || "#ffcf5e",
       dividerPrefix: (document.getElementById("set-divider-prefix") as HTMLInputElement)?.value || "---",
       dividerSuffix: (document.getElementById("set-divider-suffix") as HTMLInputElement)?.value || "---",
       commentPrefix: (document.getElementById("set-comment-prefix") as HTMLInputElement)?.value || "(",

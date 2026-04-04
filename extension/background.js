@@ -9,9 +9,6 @@ const DEFAULT_CONFIG = {
 	keyD: "KeyX",
 	altD: true,
 	ctrlD: false,
-	commentColor: "#a7a7a7",
-	dividerBg: "#1a1a1a",
-	dividerColor: "#767d88",
 	dividerPrefix: "---",
 	dividerSuffix: "---",
 	commentPrefix: "(",
@@ -42,7 +39,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			case "getAllVideos": {
 				const allResults = await chrome.storage.local.get(null);
 				const videoIds = new Set();
-				
+
 				Object.keys(allResults).forEach((key) => {
 					if (key.startsWith(STORAGE_KEY_LOGS + "_")) {
 						const vid = key.replace(STORAGE_KEY_LOGS + "_", "");
@@ -56,7 +53,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					videoId: vid,
 					title: allResults[`${STORAGE_KEY_TITLE}_${vid}`] || null,
 					url: `https://www.youtube.com/watch?v=${vid}`,
-					count: (allResults[`${STORAGE_KEY_LOGS}_${vid}`]?.length) || 0,
+					count: allResults[`${STORAGE_KEY_LOGS}_${vid}`]?.length || 0,
 				}));
 
 				sendResponse({ success: true, data: videos });
@@ -128,16 +125,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			}
 			case "togglePanel": {
 				if (sender.tab?.id) {
-					chrome.tabs.sendMessage(sender.tab.id, { type: "togglePanel" });
+					chrome.tabs.sendMessage(sender.tab.id, { type: "togglePanel" }).catch(() => {});
 				}
 				sendResponse({ success: true });
 				break;
 			}
 			case "showPanel": {
 				const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-				const ytTab = tabs.find(t => t.url?.includes("youtube.com"));
+				const ytTab = tabs.find((t) => t.url?.includes("youtube.com"));
 				if (ytTab?.id) {
-					chrome.tabs.sendMessage(ytTab.id, { type: "showPanel" });
+					chrome.tabs.sendMessage(ytTab.id, { type: "showPanel" }).catch(() => {});
 				}
 				sendResponse({ success: true });
 				break;
@@ -145,7 +142,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			case "getCurrentTime": {
 				if (sender.tab?.id) {
 					chrome.tabs.sendMessage(sender.tab.id, { type: "getCurrentTime" }, (response) => {
-						sendResponse(response);
+						sendResponse(response ?? { success: false, error: "No response" });
 					});
 				} else {
 					sendResponse({ success: false, error: "No tab" });
@@ -169,7 +166,7 @@ chrome.contextMenus?.create({
 
 chrome.contextMenus?.onClicked.addListener((info, tab) => {
 	if (info.menuItemId === "yt-timestamp-maker-toggle" && tab?.id) {
-		chrome.tabs.sendMessage(tab.id, { type: "togglePanel" });
+		chrome.tabs.sendMessage(tab.id, { type: "togglePanel" }).catch(() => {});
 	}
 });
 
@@ -181,10 +178,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	if (changeInfo.url || (changeInfo.status === "complete" && tab.url)) {
 		const videoId = getVideoIdFromUrl(tab.url);
 		if (videoId) {
-			chrome.tabs.sendMessage(tabId, {
-				type: "videoChanged",
-				videoId,
-			});
+			chrome.tabs
+				.sendMessage(tabId, {
+					type: "videoChanged",
+					videoId,
+				})
+				.catch(() => {});
 		}
 	}
 });

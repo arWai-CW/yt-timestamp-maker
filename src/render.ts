@@ -10,13 +10,13 @@ export function createHTML(config: Config): string {
     return `
         <div id="ts-panel">
             <div id="ts-header">
-                <span style="color:var(--text-primary); font-weight:bold;" data-i18n="appName"></span>
+                <span class="ts-app-title" data-i18n="appName"></span>
                 <div style="display:flex; gap:12px; align-items:center;">
-                    <span id="ts-open-settings" style="cursor:pointer; filter: grayscale(1);">⚙️</span>
-                    <span id="ts-close-btn" style="cursor:pointer; font-size:22px; line-height:1;">×</span>
+                    <span id="ts-open-settings" style="cursor:pointer; font-size:16px; color:var(--text-secondary);">⚙</span>
+                    <span id="ts-close-btn" style="cursor:pointer; font-size:22px; line-height:1; color:var(--text-secondary);">×</span>
                 </div>
             </div>
-            <div style="padding: 10px 10px 0 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <div style="padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                 <button class="ts-btn ts-btn-add" id="ts-add" data-i18n="addTimestamp"></button>
                 <button class="ts-btn ts-btn-divider" id="ts-add-divider" data-i18n="addDivider"></button>
             </div>
@@ -30,37 +30,32 @@ export function createHTML(config: Config): string {
         <div id="ts-modal-overlay">
             <div id="modal-import" class="ts-modal-box hidden">
                 <h3 data-i18n="importTitle"></h3>
-                <textarea id="ts-import-area" style="height:180px; background:var(--bg-black); color:var(--text-primary); border:1px solid var(--border-dark); padding:10px; border-radius:4px; font-family:monospace;" data-i18n-placeholder="importPlaceholder"></textarea>
+                <textarea id="ts-import-area" style="height:180px; background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-dark); padding:10px; border-radius:4px; font-family:monospace;" data-i18n-placeholder="importPlaceholder"></textarea>
                 <button class="ts-btn ts-btn-add" id="confirm-import" data-i18n="confirmImport"></button>
             </div>
             <div id="modal-settings" class="ts-modal-box hidden">
                 <h3 data-i18n="settingsTitle"></h3>
-                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:5px;" data-i18n="recordTime"></div>
-                <div id="ts-setting-hint" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--text-primary); font-weight:bold; font-size:18px; border: 1px dashed var(--border-dark); cursor:pointer;" title="">${(config.ctrl ? "Ctrl+" : "") + (config.alt ? "Alt+" : "") + (config.key || "KeyZ").replace("Key", "")}</div>
-                <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-bottom:10px;" data-i18n="clickToSet"></div>
-                <div style="display:flex; justify-content:center; gap:20px; font-size:14px">
-                    <label style="cursor:pointer"><input type="checkbox" id="set-alt" ${config.alt ? "checked" : ""}> Alt</label>
-                    <label style="cursor:pointer"><input type="checkbox" id="set-ctrl" ${config.ctrl ? "checked" : ""}> Ctrl</label>
+                <div class="ts-shortcut-section">
+                    <div class="ts-shortcut-label" data-i18n="recordTime"></div>
+                    <div class="ts-shortcut-row">
+                        <div id="ts-setting-hint" class="ts-shortcut-display" title="">${(config.ctrl ? "Ctrl+" : "") + (config.alt ? "Alt+" : "") + (config.key || "KeyZ").replace("Key", "")}</div>
+                        <div class="ts-shortcut-mods">
+                            <label class="ts-mod-toggle"><input type="checkbox" id="set-alt" ${config.alt ? "checked" : ""}><span>Alt</span></label>
+                            <label class="ts-mod-toggle"><input type="checkbox" id="set-ctrl" ${config.ctrl ? "checked" : ""}><span>Ctrl</span></label>
+                        </div>
+                    </div>
+                    <div class="ts-shortcut-hint" data-i18n="clickToSet"></div>
                 </div>
-                <div style="font-size:13px; color:var(--text-secondary); margin:15px 0 5px 0;" data-i18n="divider"></div>
-                <div id="ts-setting-hint-divider" style="background:var(--bg-black); padding:12px; text-align:center; border-radius:6px; color:var(--text-primary); font-weight:bold; font-size:18px; border: 1px dashed var(--border-dark); cursor:pointer;" title="">${(config.ctrlD ? "Ctrl+" : "") + (config.altD ? "Alt+" : "") + (config.keyD || "KeyX").replace("Key", "")}</div>
-                <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-bottom:10px;" data-i18n="clickToSet"></div>
-                <div style="display:flex; justify-content:center; gap:20px; font-size:14px">
-                    <label style="cursor:pointer"><input type="checkbox" id="set-alt-divider" ${config.altD ? "checked" : ""}> Alt</label>
-                    <label style="cursor:pointer"><input type="checkbox" id="set-ctrl-divider" ${config.ctrlD ? "checked" : ""}> Ctrl</label>
-                </div>
-                <h3 data-i18n="styleSettings"></h3>
-                <div class="ts-setting-row" style="display:none">
-                    <label data-i18n="commentColor"></label>
-                    <input type="color" id="set-comment-color" value="${config.commentColor || "a7a7a7"}">
-                </div>
-                <div class="ts-setting-row" style="display:none">
-                    <label data-i18n="dividerBg"></label>
-                    <input type="color" id="set-divider-bg" value="${config.dividerBg ? config.dividerBg.replace("#", "").slice(0, 6) : "1a1a1a"}">
-                </div>
-                <div class="ts-setting-row" style="display:none">
-                    <label data-i18n="dividerText"></label>
-                    <input type="color" id="set-divider-color" value="${config.dividerColor || "a7a7a7"}">
+                <div class="ts-shortcut-section">
+                    <div class="ts-shortcut-label" data-i18n="divider"></div>
+                    <div class="ts-shortcut-row">
+                        <div id="ts-setting-hint-divider" class="ts-shortcut-display" title="">${(config.ctrlD ? "Ctrl+" : "") + (config.altD ? "Alt+" : "") + (config.keyD || "KeyX").replace("Key", "")}</div>
+                        <div class="ts-shortcut-mods">
+                            <label class="ts-mod-toggle"><input type="checkbox" id="set-alt-divider" ${config.altD ? "checked" : ""}><span>Alt</span></label>
+                            <label class="ts-mod-toggle"><input type="checkbox" id="set-ctrl-divider" ${config.ctrlD ? "checked" : ""}><span>Ctrl</span></label>
+                        </div>
+                    </div>
+                    <div class="ts-shortcut-hint" data-i18n="clickToSet"></div>
                 </div>
                 <h3 data-i18n="copyFormat"></h3>
                 <div class="ts-setting-row">

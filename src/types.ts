@@ -22,7 +22,7 @@ export interface TimestampLog {
 
 /**
  * User configuration for the timestamp tool.
- * Controls keyboard shortcuts, visual styling, and export format.
+ * Controls keyboard shortcuts and export format.
  * 
  * @property key - Keyboard key code for adding timestamps (e.g., "KeyZ")
  * @property alt - Whether Alt key is required for timestamp shortcut
@@ -30,9 +30,6 @@ export interface TimestampLog {
  * @property keyD - Keyboard key code for adding dividers (e.g., "KeyX")
  * @property altD - Whether Alt key is required for divider shortcut
  * @property ctrlD - Whether Ctrl key is required for divider shortcut
- * @property commentColor - Hex color for comment text
- * @property dividerBg - Background color for divider items
- * @property dividerColor - Text/border color for dividers
  * @property dividerPrefix - String prefix for dividers in export (e.g., "---")
  * @property dividerSuffix - String suffix for dividers in export (e.g., "---")
  * @property commentPrefix - String prefix wrapping comments in export (e.g., "(")
@@ -46,9 +43,6 @@ export interface Config {
 	keyD: string;
 	altD: boolean;
 	ctrlD: boolean;
-	commentColor: string;
-	dividerBg: string;
-	dividerColor: string;
 	dividerPrefix: string;
 	dividerSuffix: string;
 	commentPrefix: string;

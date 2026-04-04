@@ -47,6 +47,7 @@ function getStorageKeys(videoId: string): StorageKeys {
 type MessageType =
 	| "getAllVideos"
 	| "getVideoId"
+	| "getVideoTitle"
 	| "getLogs"
 	| "setLogs"
 	| "getConfig"
@@ -107,6 +108,27 @@ chrome.runtime.onMessage.addListener(
 					break;
 				}
 
+				case "getVideoTitle": {
+					const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+					console.log("[Background] 1getVideoTitle - tabs:", tabs);
+					if (tabs[0]?.id) {
+						try {
+							const response = await chrome.tabs.sendMessage(
+								tabs[0].id,
+								{ type: "getVideoTitle" }
+							);
+							console.log("[Background] sendMessage response:", response);
+							sendResponse({ success: true, data: response?.title || null });
+						} catch (e) {
+							console.log("[Background] sendMessage error:", e);
+							sendResponse({ success: true, data: null });
+						}
+					} else {
+						sendResponse({ success: false, error: "No active tab" });
+					}
+					break;
+				}
+
 				case "getLogs": {
 					if (!keys) {
 						sendResponse({ success: false, error: "No video ID" });
@@ -157,7 +179,7 @@ chrome.runtime.onMessage.addListener(
 				}
 				case "togglePanel": {
 					if (sender.tab?.id) {
-						chrome.tabs.sendMessage(sender.tab.id, { type: "togglePanel" }).catch(() => {});
+						chrome.tabs.sendMessage(sender.tab.id, { type: "togglePanel" }).catch(() => { });
 					}
 					sendResponse({ success: true });
 					break;
@@ -166,7 +188,7 @@ chrome.runtime.onMessage.addListener(
 					const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 					const ytTab = tabs.find((t) => t.url?.includes("youtube.com"));
 					if (ytTab?.id) {
-						chrome.tabs.sendMessage(ytTab.id, { type: "showPanel" }).catch(() => {});
+						chrome.tabs.sendMessage(ytTab.id, { type: "showPanel" }).catch(() => { });
 					}
 					sendResponse({ success: true });
 					break;
@@ -203,7 +225,7 @@ chrome.contextMenus?.create({
 
 chrome.contextMenus?.onClicked.addListener((info, tab) => {
 	if (info.menuItemId === "yt-timestamp-maker-toggle" && tab?.id) {
-		chrome.tabs.sendMessage(tab.id, { type: "togglePanel" }).catch(() => {});
+		chrome.tabs.sendMessage(tab.id, { type: "togglePanel" }).catch(() => { });
 	}
 });
 
@@ -220,7 +242,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 					type: "videoChanged",
 					videoId,
 				})
-				.catch(() => {});
+				.catch(() => { });
 		}
 	}
 });
@@ -229,4 +251,4 @@ chrome.runtime.onInstalled.addListener(() => {
 	console.log("YouTube Timestamp Maker extension installed");
 });
 
-export {};
+export { };

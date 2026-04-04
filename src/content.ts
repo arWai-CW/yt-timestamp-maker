@@ -501,40 +501,46 @@ async function handleNavigation(): Promise<void> {
 // Watches for YouTube video page changes and initializes the tool when video is detected
 function watchForVideoPage(): void {
   let navDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastUrl = location.href;
+  let lastPathname = location.pathname;
 
   const checkVideoPage = (): void => {
-    try {
-      const video = document.querySelector("video");
-      if (!video) return;
+    const currentPathname = location.pathname;
+    const isWatchPage = currentPathname === "/watch";
+    const panel = document.getElementById("ts-panel");
 
-      const panel = document.getElementById("ts-panel");
-      if (!panel) {
-        init();
-      } else {
-        // Debounce navigation handling to avoid excessive triggers during DOM changes
-        if (navDebounceTimer) {
-          clearTimeout(navDebounceTimer);
-        }
-        navDebounceTimer = setTimeout(() => {
-          handleNavigation();
-        }, 100);
+    if (!isWatchPage) {
+      if (panel) {
+        panel.classList.add("hidden");
       }
-    } catch {
-      // DOM may be in unstable state during major changes (e.g., chat replay toggle)
-      // Skip this check iteration
+      return;
+    }
+
+    if (!panel) {
+      init();
+    }
+
+    if (currentPathname !== lastPathname) {
+      lastPathname = currentPathname;
+      if (navDebounceTimer) {
+        clearTimeout(navDebounceTimer);
+      }
+      navDebounceTimer = setTimeout(() => {
+        handleNavigation();
+      }, 200);
     }
   };
 
-  const observer = new MutationObserver(() => {
-    try {
-      checkVideoPage();
-    } catch (e) {
-      console.error("MutationObserver error:", e);
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-
   window.addEventListener("popstate", handleNavigation);
+
+  checkVideoPage();
+
+  setInterval(() => {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+      checkVideoPage();
+    }
+  }, 1500);
 }
 
 // MV3 message listener for communication with background script
@@ -542,8 +548,15 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const msg = message as { type: string; videoId?: string };
     if (msg.type === "togglePanel") {
-      const panel = document.getElementById("ts-panel");
-      if (panel) {
+      let panel = document.getElementById("ts-panel");
+      if (!panel) {
+        init().then(() => {
+          panel = document.getElementById("ts-panel");
+          if (panel) {
+            panel.classList.remove("hidden");
+          }
+        });
+      } else {
         if (panel.classList.contains("hidden")) {
           panel.classList.remove("hidden");
         } else {
@@ -555,8 +568,15 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
     }
 
     if (msg.type === "showPanel") {
-      const panel = document.getElementById("ts-panel");
-      if (panel) {
+      let panel = document.getElementById("ts-panel");
+      if (!panel) {
+        init().then(() => {
+          panel = document.getElementById("ts-panel");
+          if (panel) {
+            panel.classList.remove("hidden");
+          }
+        });
+      } else {
         panel.classList.remove("hidden");
       }
       sendResponse({ success: true });
@@ -572,6 +592,13 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
     if (msg.type === "getCurrentTime") {
       const currentTime = store.getCurrentTime();
       sendResponse({ success: true, data: currentTime });
+      return true;
+    }
+
+    if (msg.type === "getVideoTitle") {
+      const title = store.getVideoTitle();
+      console.log("[Content] getVideoTitle called, title:", title);
+      sendResponse({ success: true, title });
       return true;
     }
 

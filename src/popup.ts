@@ -22,7 +22,13 @@ async function sendMessage(message: { type: string; [key: string]: unknown }): P
 }
 
 async function init(): Promise<void> {
+	console.log("[Popup] init started");
 	const lang = detectSystemLang();
+
+	const titleEl = document.getElementById("title");
+	if (titleEl) {
+		titleEl.textContent = t("appName", lang);
+	}
 
 	const videoIdResponse = await sendMessage({ type: "getVideoId" });
 
@@ -33,13 +39,30 @@ async function init(): Promise<void> {
 		document.getElementById("youtube-link")!.textContent = t("goToYoutube", lang);
 	} else {
 		const videoId = videoIdResponse.data as string;
-		const titleEl = document.getElementById("title");
-		if (titleEl) {
-			titleEl.textContent = t("appName", lang);
-		}
 		const videoIdEl = document.getElementById("video-id");
 		if (videoIdEl) {
 			videoIdEl.textContent = videoId;
+		}
+
+		console.log("[Popup] Video ID found:", videoId);
+
+		let titleResponse: MessageResponse | null = null;
+		for (let i = 0; i < 3; i++) {
+			if (i > 0) {
+				await new Promise((resolve) => setTimeout(resolve, 500));
+			}
+			titleResponse = await sendMessage({ type: "getVideoTitle" });
+			console.log(`[Popup] getVideoTitle attempt ${i + 1}:`, titleResponse);
+			if (titleResponse?.success && titleResponse.data) {
+				break;
+			}
+		}
+
+		if (titleResponse?.success && titleResponse.data) {
+			await sendMessage({ type: "setVideoTitle", videoId, data: titleResponse.data });
+			console.log("[Popup] Title saved:", titleResponse.data);
+		} else {
+			console.log("[Popup] Failed to get title after 3 attempts");
 		}
 	}
 
@@ -63,9 +86,9 @@ async function renderSavedVideos(lang: string): Promise<void> {
 	const videos = response.data as VideoInfo[];
 	container.innerHTML = videos
 		.map(
-			(v) =>
+			(v, i) =>
 				`<a href="${v.url}" target="_blank" class="saved-video-item" data-video-id="${v.videoId}">
-					<span class="video-title-text">${v.title || v.videoId}</span>
+					<span class="video-title-text">${v.title || t("unknownVideo", lang)}</span>
 					<span class="video-count">${v.count}</span>
 				</a>`
 		)

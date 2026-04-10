@@ -1,16 +1,18 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { cpSync, existsSync, mkdirSync, readdirSync } from "fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "fs";
+
+const BROWSER = process.env.BROWSER || "chrome";
 
 function copyStaticAssets() {
 	const srcDir = resolve(__dirname, "extension");
-	const distDir = resolve(__dirname, "dist", "extension");
+	const distDir = resolve(__dirname, "dist", BROWSER);
 
 	if (!existsSync(distDir)) {
 		mkdirSync(distDir, { recursive: true });
 	}
 
-	const staticFiles = ["manifest.json", "popup.html", "popup.css", "icons"];
+	const staticFiles = ["popup.html", "popup.css", "icons"];
 
 	for (const file of staticFiles) {
 		const srcPath = resolve(srcDir, file);
@@ -28,6 +30,19 @@ function copyStaticAssets() {
 			}
 		}
 	}
+
+	const manifestPath = resolve(srcDir, "manifest.json");
+	const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+
+	if (BROWSER === "firefox") {
+		manifest.background = {
+			scripts: ["background.js"],
+			type: "module",
+		};
+	}
+
+	const manifestPathOut = resolve(distDir, "manifest.json");
+	writeFileSync(manifestPathOut, JSON.stringify(manifest, null, 2));
 }
 
 function isLastEntry(): boolean {
@@ -47,7 +62,7 @@ export default defineConfig({
 		},
 	],
 	build: {
-		outDir: "dist",
+		outDir: "dist/" + BROWSER,
 		emptyOutDir: false,
 		lib: {
 			entry: resolve(__dirname, `src/${process.env.INPUT || "content"}.ts`),
@@ -55,9 +70,9 @@ export default defineConfig({
 			formats: ["iife"],
 			fileName: (format, name) => {
 				const inputName = process.env.INPUT || "content";
-				if (inputName === "popup") return "extension/popup.js";
-				if (inputName === "background") return "extension/background.js";
-				return "extension/content.js";
+				if (inputName === "popup") return "popup.js";
+				if (inputName === "background") return "background.js";
+				return "content.js";
 			},
 		},
 		rollupOptions: {
@@ -65,10 +80,10 @@ export default defineConfig({
 				assetFileNames: (assetInfo) => {
 					const inputName = process.env.INPUT || "content";
 					if (inputName === "popup" && assetInfo.name === "popup.css") {
-						return "extension/popup.css";
+						return "popup.css";
 					}
 					if (inputName === "content" && assetInfo.name === "style.css") {
-						return "extension/content.css";
+						return "content.css";
 					}
 					return assetInfo.name ?? "assets/[name]-[hash]";
 				},

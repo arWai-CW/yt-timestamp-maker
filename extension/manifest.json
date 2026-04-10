@@ -10,6 +10,12 @@
     "service_worker": "background.js",
     "type": "module"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "yt-timestamp-maker@arWai-CW",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": [
     "storage",
     "contextMenus",
@@ -29,11 +35,5 @@
       "css": ["content.css"],
       "run_at": "document_idle"
     }
-  ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "yt-timestamp-maker@example.com",
-      "strict_min_version": "109.0"
-    }
-  }
+  ]
 }

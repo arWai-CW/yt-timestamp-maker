@@ -12,7 +12,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite",
-		"build": "BUILD=extension INPUT=content vite build && BUILD=extension INPUT=background vite build && BUILD=extension INPUT=popup vite build",
+		"build:chrome": "BROWSER=chrome INPUT=content vite build && BROWSER=chrome INPUT=background vite build && BROWSER=chrome INPUT=popup vite build",
+		"build:firefox": "BROWSER=firefox INPUT=content vite build && BROWSER=firefox INPUT=background vite build && BROWSER=firefox INPUT=popup vite build",
+		"build:all": "npm run build:chrome && npm run build:firefox",
 		"preview": "vite preview"
 	},
 	"type": "module"
